@@ -66,7 +66,7 @@ int main(void)
   HAL_Init(); // Reset of all peripherals, init the Flash and Systick
 	SystemClock_Config(); //Configure the system clock
 	
-	RCC -> AHBENR |= RCC_AHBENR_GPIOCEN; //Sets RCC to GPIOC Enable
+	RCC -> AHBENR |= 1<<19; //Enables the clock on IO Port C, which is AHBENR bit 19.
 	
 	//Convention: GPIOx_Register = 0b100 -> x = Peripherial (Px), Register = the register (MODER, OSPEEDR, etc), 
 	//bits represent which pin is being set to what. For example, the third bit would part of the 1st pin (starting from 0)
