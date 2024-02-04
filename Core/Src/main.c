@@ -65,15 +65,8 @@ int main(void)
 {
   HAL_Init(); // Reset of all peripherals, init the Flash and Systick
 	SystemClock_Config(); //Configure the system clock
-	/* This example uses HAL library calls to control
-	the GPIOC peripheral. You’ll be redoing this code
-	with hardware register access. */
-	//__HAL_RCC_GPIOC_CLK_ENABLE(); // Enable the GPIOC clock in the RCC. Replaced with line below:
-	RCC_AHBENR_GPIOCEN; //Enables GIOPC clock
 	
-	// Set up a configuration struct to pass to the initialization function
-	//GPIO_InitTypeDef initStr = {GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
-	//HAL_GPIO_Init(GPIOC, &initStr); // Initialize pins PC8 & PC9. Replaced with code below:
+	RCC -> AHBENR |= RCC_AHBENR_GPIOCEN; //Sets RCC to GPIOC Enable
 	
 	//Convention: GPIOx_Register = 0b100 -> x = Peripherial (Px), Register = the register (MODER, OSPEEDR, etc), 
 	//bits represent which pin is being set to what. For example, the third bit would part of the 1st pin (starting from 0)
@@ -95,15 +88,34 @@ int main(void)
 	//Set button pin to Pull-down (10) using PUPDR register
 	GPIOA -> PUPDR = 0b10;
 	
-	//HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET); // Start PC8 high
+	uint32_t debouncer = 0; //debouncer signal
 	//Initialize LED values (one high, one low)
+	GPIOC -> ODR = 0b01000000;
 	while (1) {
-		//HAL_Delay(200); // Delay 200ms
-		// Toggle the output state of both PC8 and PC9
-		//HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8 | GPIO_PIN_9);
-		//Toggle LEDs on and off with timer
+		//Toggle LEDs on and off with timer (to be commented out if doing button press)
+		HAL_Delay(200); // Delay 200ms, the only HAL Method we are aloud to use.
+		if(GPIOC -> ODR == 0b10000000){ //If Red LED is on
+			GPIOC -> ODR = GPIOC -> ODR >> 1; //Switch Red to off and Blue to on
+		}else{ //Blue LED must be on
+			GPIOC -> ODR = GPIOC -> ODR <<1; //Switch Blue to off and Red to on
+		}
 		
-		//Toggle LEDs on button press
+		//Toggle LEDs on button press (to be commented out if doing timer)
+		/*
+		debouncer = (debouncer << 1); // Always shift every loop iteration
+		if (input_signal) { // If input signal is set/high
+			debouncer |= 0x01; // Set lowest bit of bit-vector
+		}
+		// This code triggers only once when transitioning to steady high!
+		//This is the only state of the button that matters, as this is when the LEDs swap
+		if (debouncer == 0x7FFFFFFF) {
+			if(GPIOC -> ODR == 0b10000000){ //If Red LED is on
+				GPIOC -> ODR = GPIOC -> ODR >> 1; //Switch Red to off and Blue to on
+			}else{ //Blue LED must be on
+				GPIOC -> ODR = GPIOC -> ODR <<1; //Switch Blue to off and Red to on
+			}
+		}
+		*/
 	}
 }
 
