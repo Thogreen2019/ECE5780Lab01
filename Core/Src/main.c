@@ -67,6 +67,7 @@ int main(void)
 	SystemClock_Config(); //Configure the system clock
 	
 	RCC -> AHBENR |= 1<<19; //Enables the clock on IO Port C, which is AHBENR bit 19.
+	RCC -> AHBENR |= 1<<17; //Enables the clock on IO Port A, which is AHBENR bit 17.
 	
 	//Convention: GPIOx_Register = 0b100 -> x = Peripherial (Px), Register = the register (MODER, OSPEEDR, etc), 
 	//bits represent which pin is being set to what. For example, the third bit would part of the 1st pin (starting from 0)
@@ -103,26 +104,20 @@ int main(void)
 		//Toggle LEDs on button press (to be commented out if doing timer)
 		/*
 		debouncer = (debouncer << 1); // Always shift every loop iteration
-		if (GPIOA -> IDR & 0b1) { // If input signal is set/high
+		if (GPIOA -> IDR & 1) { // If input signal is set/high
 			debouncer |= 0x01; // Set lowest bit of bit-vector
 		}
 		if (debouncer == 0xFFFFFFFF) {
 			// This code triggers repeatedly when button is steady high!
 		}
-		if (debouncer == 0x00000000) {
+		if (debouncer == 0x00000000) {\
 			// This code triggers repeatedly when button is steady low!
 		}
 		if (debouncer == 0x7FFFFFFF) {
 			// This code triggers only once when transitioning to steady high!
-			if(GPIOC -> ODR == 0b10000000){ //If Red LED is on
-				GPIOC -> ODR = GPIOC -> ODR >> 1; //Switch Red to off and Blue to on
-			}else{ //Blue LED must be on
-				GPIOC -> ODR = GPIOC -> ODR <<1; //Switch Blue to off and Red to on
-			}
-			HAL_Delay(200);
-	}
-		
-		*/
+			GPIOC -> ODR ^= (1<<6);
+			GPIOC -> ODR ^= (1<<7);
+		}*/
 	}
 }
 
